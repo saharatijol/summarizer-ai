@@ -1,11 +1,29 @@
 package com.research.summarizer_ai;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
 @Service
 public class SummarizerService {
+    @Value("${gemini.api.url}")
+    private String geminiApiUrl;
+
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
+
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper;
+
+    public SummarizerService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+        this.webClient = webClientBuilder.build();
+        this.objectMapper = objectMapper;
+    }
+
+
     public String processContent(SummarizerRequest request) {
 
         // build the prompt
@@ -19,8 +37,38 @@ public class SummarizerService {
                         })
                 }
         );
+
+        String response = webClient.post()
+                .uri(geminiApiUrl + geminiApiKey)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        
         // parse the response
+        
         // return response
+        return extractTextFromResponse(response);
+    }
+
+    private String extractTextFromResponse(String response) {
+        try {
+            // json response to objects
+            GeminiResponse geminiResponse = objectMapper.readValue(response, GeminiResponse.class);
+
+            // checking responses if exists
+            if(geminiResponse.getCandidates() != null && geminiResponse.getCandidates().isEmpty()) {
+                GeminiResponse.Candidate firstCandidate = geminiResponse.getCandidates().get(0);
+
+                if(firstCandidate.getContent() != null &&
+                        firstCandidate.getContent().getParts() != null &&
+                        !firstCandidate.getContent().getParts().isEmpty()) {
+                    return firstCandidate.getContent().getParts().get(0).getText();
+                }
+            }
+        } catch (Exception e) {
+            return "Error Parsing: " + e.getMessage();
+        }
     }
 
     private String buildPrompt(SummarizerRequest request) {
