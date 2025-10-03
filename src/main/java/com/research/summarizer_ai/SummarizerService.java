@@ -78,7 +78,10 @@ public class SummarizerService {
 
         switch(request.getOperation()) {
             case "summarize":
-                prompt.append("Provide a clear and concise summary of the following text in a few sentences:\n\n");
+                prompt.append("Summarize the following highlighted text in clear, concise language. Focus only on the " +
+                        "key points and main ideas. Do not add outside information, and avoid unnecessary details or " +
+                        "repetition. If the text contains multiple ideas, present them in a logical order. Provide the " +
+                        "summary in 3–4 sentences:\n\n");
                 break;
 
             case "suggest":
