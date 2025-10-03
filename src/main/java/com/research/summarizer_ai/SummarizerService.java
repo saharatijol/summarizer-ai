@@ -57,7 +57,7 @@ public class SummarizerService {
             GeminiResponse geminiResponse = objectMapper.readValue(response, GeminiResponse.class);
 
             // checking responses if exists
-            if(geminiResponse.getCandidates() != null && geminiResponse.getCandidates().isEmpty()) {
+            if(geminiResponse.getCandidates() != null && !geminiResponse.getCandidates().isEmpty()) {
                 GeminiResponse.Candidate firstCandidate = geminiResponse.getCandidates().get(0);
 
                 if(firstCandidate.getContent() != null &&
@@ -78,10 +78,7 @@ public class SummarizerService {
 
         switch(request.getOperation()) {
             case "summarize":
-                prompt.append("Summarize the following highlighted text in clear, concise language. Focus only on the " +
-                        "key points and main ideas. Do not add outside information, and avoid unnecessary details or " +
-                        "repetition. If the text contains multiple ideas, present them in a logical order. Provide the " +
-                        "summary in 3–4 sentences:\n\n");
+                prompt.append("Provide a clear and concise summary of the following text in a few sentences:\n\n");
                 break;
 
             case "suggest":
