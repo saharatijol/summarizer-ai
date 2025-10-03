@@ -1,7 +1,7 @@
 package com.research.summarizer_ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -66,9 +66,11 @@ public class SummarizerService {
                     return firstCandidate.getContent().getParts().get(0).getText();
                 }
             }
+            return "No content found in response";
         } catch (Exception e) {
             return "Error Parsing: " + e.getMessage();
         }
+
     }
 
     private String buildPrompt(SummarizerRequest request) {
